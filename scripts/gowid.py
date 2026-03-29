@@ -45,6 +45,15 @@ def _err(msg: str) -> None:
     sys.exit(1)
 
 
+_HTTP_MESSAGES = {
+    401: "API 키가 만료되었거나 잘못되었습니다. 운영팀(ash@eoeoeo.net)에 문의하세요.",
+    403: "접근 권한이 없습니다. Gowid 계정 상태를 확인하세요.",
+    404: "요청한 데이터를 찾을 수 없습니다. ID를 다시 확인하세요.",
+    429: "API 요청이 너무 많습니다. 잠시 후 다시 시도하세요.",
+    500: "Gowid 서버 오류입니다. 잠시 후 다시 시도하세요.",
+}
+
+
 def _api_get(path: str) -> dict:
     req = urllib.request.Request(
         f"{API_BASE}{path}",
@@ -54,9 +63,10 @@ def _api_get(path: str) -> dict:
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        _err(f"API {e.code}: {path}")
+        msg = _HTTP_MESSAGES.get(e.code, f"HTTP {e.code} 오류")
+        _err(f"{msg} (GET {path})")
     except urllib.error.URLError as e:
-        _err(f"Network error: {e.reason}")
+        _err(f"네트워크 연결 실패: {e.reason}. 인터넷/VPN 연결을 확인하세요.")
 
 
 def _api_put(path: str, body: dict) -> dict | None:
@@ -75,9 +85,10 @@ def _api_put(path: str, body: dict) -> dict | None:
             raw = resp.read().decode("utf-8")
             return json.loads(raw) if raw.strip() else None
     except urllib.error.HTTPError as e:
-        _err(f"API PUT {e.code}: {path}")
+        msg = _HTTP_MESSAGES.get(e.code, f"HTTP {e.code} 오류")
+        _err(f"{msg} (PUT {path})")
     except urllib.error.URLError as e:
-        _err(f"Network error: {e.reason}")
+        _err(f"네트워크 연결 실패: {e.reason}. 인터넷/VPN 연결을 확인하세요.")
 
 
 def _git_email() -> str:
@@ -109,7 +120,7 @@ def cmd_whoami() -> None:
                 "department": (m.get("department") or {}).get("name", ""),
             })
             return
-    _err(f"No user found for {email}")
+    _err(f"{email} 에 매칭되는 Gowid 사용자가 없습니다. git email과 Gowid 등록 이메일이 같은지 확인하세요.")
 
 
 def cmd_my_expenses() -> None:
@@ -125,7 +136,7 @@ def cmd_my_expenses() -> None:
             user_name = m["userName"]
             break
     if not user_name:
-        _err("Could not identify user")
+        _err(f"Gowid에서 {email} 사용자를 찾을 수 없습니다. git email과 Gowid 등록 이메일이 같은지 확인하세요.")
 
     # 이번 달 1일 기준 cutoff
     cutoff = datetime.now().strftime("%Y%m") + "01"
