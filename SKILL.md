@@ -84,7 +84,7 @@ python3 ~/.claude/skills/gowid-expense/scripts/gowid.py submit <expenseId> <purp
 - 참석자 이름 → userId 변환은 `gowid.py members`로 조회
 
 **IT서비스 제출 시**:
-- 메모에 서비스명 자동 기입 (예: "Notion 워크스페이스")
+- 메모에 서비스명 자동 기입 (예: "Slack 워크스페이스")
 
 ### 3. 용도 목록 조회
 

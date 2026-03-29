@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.error
@@ -267,6 +268,30 @@ def cmd_members() -> None:
     _out(members)
 
 
+_RULE_QUERY_STOPWORDS = {
+    "auto", "rule", "rules", "search",
+    "자동", "자동규칙", "규칙", "검색", "조회", "확인", "찾기", "찾아줘",
+    "보여줘", "관련", "내용", "좀", "줘",
+}
+
+
+def _tokenize_rule_query(query: str) -> list[str]:
+    tokens = re.findall(r"[A-Za-z0-9]+|[가-힣]+", query.lower())
+    cleaned = [token for token in tokens if token not in _RULE_QUERY_STOPWORDS]
+    # 토큰이 전부 불용어인 경우에 대비해 원문 자체도 fallback으로 사용한다.
+    return cleaned or ([query.strip().lower()] if query.strip() else [])
+
+
+def _rule_search_text(rule: dict) -> str:
+    parts = [
+        rule.get("store_pattern") or "",
+        rule.get("purpose_name") or "",
+        rule.get("requirement_answer") or "",
+        rule.get("requirement_item") or "",
+    ]
+    return " ".join(parts).lower()
+
+
 def cmd_rules(query: str = "") -> None:
     rules_file = Path(__file__).resolve().parent.parent / "data" / "auto_rules.json"
     if not rules_file.exists():
@@ -277,12 +302,38 @@ def cmd_rules(query: str = "") -> None:
 
     rules = data.get("rules", [])
     if query:
-        q = query.lower()
-        rules = [
-            r for r in rules
-            if q in r.get("store_pattern", "").lower()
-            or q in r.get("purpose_name", "").lower()
-        ]
+        query_lower = query.lower().strip()
+        tokens = _tokenize_rule_query(query)
+        ranked_rules: list[tuple[int, int, float, dict]] = []
+        for rule in rules:
+            text = _rule_search_text(rule)
+            if not text:
+                continue
+
+            matched_tokens = sum(1 for token in tokens if token and token in text)
+            full_query_match = int(bool(query_lower) and query_lower in text)
+            if not matched_tokens and not full_query_match:
+                continue
+
+            ranked_rules.append(
+                (
+                    matched_tokens,
+                    full_query_match,
+                    float(rule.get("confidence") or 0),
+                    rule,
+                )
+            )
+
+        ranked_rules.sort(
+            key=lambda item: (
+                item[0],
+                item[1],
+                item[2],
+                len(item[3].get("store_pattern") or ""),
+            ),
+            reverse=True,
+        )
+        rules = [rule for _, _, _, rule in ranked_rules]
 
     result = [
         {
