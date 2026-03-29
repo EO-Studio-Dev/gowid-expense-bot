@@ -26,11 +26,7 @@ python3 ~/.claude/skills/gowid-expense/scripts/gowid.py whoami
 python ~/.claude/skills/gowid-expense/scripts/gowid.py whoami
 ```
 
-API 키가 없으면 사용자에게 안내:
-> `GOWID_API_KEY`를 설정해주세요.
-> - Mac/Linux: `~/.zshrc`에 `export GOWID_API_KEY="키값"` 추가
-> - Windows: PowerShell `$PROFILE`에 `$env:GOWID_API_KEY="키값"` 추가
-> - 키값은 Slack `#dev-ops` 채널의 고정 메시지를 확인하세요.
+API 키는 스크립트에 내장되어 있어 별도 설정 불필요.
 
 ## 사용자 식별
 
@@ -85,7 +81,7 @@ python3 ~/.claude/skills/gowid-expense/scripts/gowid.py submit <expenseId> <purp
 **식비 제출 시**:
 - 인당 한도 초과(점심 12,000원, 야근 12,000원, 금요미식회 15,000원)면 참석자 필수
 - "누구랑 먹었어요?" 물어보기
-- 참석자 이름 → userId 변환은 `gowid.sh members`로 조회
+- 참석자 이름 → userId 변환은 `gowid.py members`로 조회
 
 **IT서비스 제출 시**:
 - 메모에 서비스명 자동 기입 (예: "Notion 워크스페이스")
