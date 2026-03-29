@@ -15,7 +15,7 @@ Claude Code에서 법인카드 경비를 자동 분류하고 제출하는 스킬
 터미널에서 한 줄 복붙:
 
 ```bash
-curl -s https://raw.githubusercontent.com/EO-Studio-Dev/gowid-expense-bot/main/install.sh | bash
+curl -s https://raw.githubusercontent.com/EO-Studio-Dev/gowid-expense-skill/main/install.sh | bash
 ```
 
 설치 후 새 터미널을 열거나 `source ~/.zshrc` 실행.
@@ -91,7 +91,7 @@ gowid-expense/
 
 새 가맹점 규칙을 추가하고 싶으면:
 1. Claude Code에서 "이 가맹점 규칙 추가해줘"라고 말하거나
-2. [GitHub Issue](https://github.com/EO-Studio-Dev/gowid-expense-bot/issues)에 등록
+2. [GitHub Issue](https://github.com/EO-Studio-Dev/gowid-expense-skill/issues)에 등록
 
 ## 라이선스
 

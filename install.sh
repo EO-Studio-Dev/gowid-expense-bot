@@ -5,7 +5,7 @@ set -e
 echo "🔧 Gowid 경비 어시스턴트 설치 중..."
 
 # 1. Claude Code 스킬 설치
-npx skills add EO-Studio-Dev/gowid-expense-bot --skill gowid-expense -y 2>/dev/null || {
+npx skills add EO-Studio-Dev/gowid-expense-skill --skill gowid-expense -y 2>/dev/null || {
   echo "❌ 스킬 설치 실패. npx가 설치되어 있는지 확인하세요."
   exit 1
 }
